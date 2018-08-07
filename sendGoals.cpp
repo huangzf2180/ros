@@ -5,10 +5,13 @@
 #include <nav_msgs/Odometry.h>
 #include <sstream>
 #include <iostream>
-#include <vector>
 #include<ctime>
 #include<cstdio>
-#include "test_1.cpp"
+// #include "boustrophedon.h"
+#include"make_point.cpp"
+
+using std::cout;
+using std::endl;
 
 typedef actionlib::SimpleActionClient<move_base_msgs::MoveBaseAction> MoveBaseClient;
 
@@ -41,6 +44,7 @@ void feedbackCB(const move_base_msgs::MoveBaseFeedback::ConstPtr &feedback, Move
 
 int main(int argc, char *argv[])
 {
+    
     ros::init(argc, argv, "navigation_goals");
     MoveBaseClient ac("move_base", true);
 
@@ -49,18 +53,25 @@ int main(int argc, char *argv[])
         ROS_INFO("cannot connect to server!");
     }
 
+    vector<Point> pointVec = make_point();
+
     move_base_msgs::MoveBaseGoal goal;
     goal.target_pose.header.frame_id = "map";
 
-    std::vector<point> vec = getPointVector();
-    ROS_INFO("point count = %d", int(vec.size()));
+    // std::vector<point> vec = getPointVector();
+    // ROS_INFO("point count = %d", int(vec.size()));
 
-    srand((unsigned)time(NULL));
+    // srand((unsigned)time(NULL));
+
+    int i = 0;
+    int pointVec_size = pointVec.size();
 
     while (true)
     {
-        point p = vec.at(rand() % vec.size());
-        ROS_INFO("point = %f, %f", p.x, p.y);
+        // point p = vec.at(rand() % vec.size());
+        // ROS_INFO("point = %f, %f", p.x, p.y);
+        Point p = pointVec.at(i % pointVec_size);
+        i++;
 
         // std::cout << "输入三组坐标:" << std::endl;
         goal.target_pose.header.stamp = ros::Time::now();
@@ -70,8 +81,8 @@ int main(int argc, char *argv[])
         //     std::cin >> point_array[i][0] >> point_array[i][1];
         // }
 
-        // for (int i = 0; i < 3; i++)
-        // {
+        cout<<"x = "<<p.x<<", y = "<<p.y<<endl;
+
         goal.target_pose.pose.position.x = p.x;
         goal.target_pose.pose.position.y = p.y;
         goal.target_pose.pose.orientation.w = 1.0;
